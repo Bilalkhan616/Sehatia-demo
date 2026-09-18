@@ -401,5 +401,16 @@
   "wallet": {
     "topUp": "Wallet top-up",
     "promo": "Promo credit"
+  },
+  "map": {
+    "title": "Live location",
+    "demoBadge": "Demo map",
+    "you": "You",
+    "nurse": "Nurse",
+    "patient": "Patient",
+    "eta": "ETA {{mins}} min",
+    "distance": "{{km}} km",
+    "defaultAddress": "Visit address",
+    "hint": "Preview of how nurse & patient locations will appear on the map."
   }
 }

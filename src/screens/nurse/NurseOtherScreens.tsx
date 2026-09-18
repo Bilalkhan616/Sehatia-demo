@@ -11,6 +11,7 @@ import {
   GradientButton,
   Header,
   LanguageToggle,
+  AppointmentMapPreview,
   OutlinedInput,
   Screen,
   showToast,
@@ -190,6 +191,14 @@ export function NurseAppointmentInfoScreen() {
           </GradientButton>
         )}
       </Card>
+
+      {(appointment.status === 'upcoming' || appointment.status === 'ongoing') && (
+        <AppointmentMapPreview
+          perspective="nurse"
+          address={appointment.address}
+          peerName={appointment.patientName}
+        />
+      )}
     </Screen>
   )
 }
