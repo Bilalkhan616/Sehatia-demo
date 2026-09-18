@@ -337,6 +337,7 @@
     "ongoingVisits": "زيارات جارية",
     "menu": "القائمة",
     "help": "مساعدة",
+    "helpDemo": "المساعدة والدعم (عرض)",
     "payoutRequested": "تم طلب السحب (عرض)",
     "requestPayout": "طلب سحب",
     "availableEarnings": "الأرباح المتاحة",
@@ -401,6 +402,14 @@
   "wallet": {
     "topUp": "شحن المحفظة",
     "promo": "رصيد ترويجي"
+  },
+  "carousel": {
+    "careTitle": "رعاية طبية متخصصة",
+    "careSubtitle": "محترفون مهرة إلى جانبك",
+    "nursingTitle": "دعم تمريض منزلي",
+    "nursingSubtitle": "رعاية رحيمة حيث تعيش",
+    "doctorsTitle": "أطباء موثوقون",
+    "doctorsSubtitle": "رعاية صحية يمكنك الاعتماد عليها"
   },
   "map": {
     "title": "الموقع المباشر",

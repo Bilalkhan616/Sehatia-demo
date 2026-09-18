@@ -208,6 +208,7 @@ export default function App() {
         >
           <Route path="dashboard" element={<NurseDashboardScreen />} />
           <Route path="dashboard/wallet" element={<NurseWalletScreen />} />
+          <Route path="dashboard/settings" element={<SettingsScreen />} />
           <Route path="requests" element={<NurseRequestScreen />} />
           <Route path="appointments" element={<NurseAppointmentsScreen />} />
           <Route path="appointments/:id" element={<NurseAppointmentInfoScreen />} />

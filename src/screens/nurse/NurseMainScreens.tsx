@@ -1,6 +1,7 @@
 import {
-  ChevronRight,
+  CircleHelp,
   LogOut,
+  Settings,
   Shield,
   User,
   Wallet,
@@ -11,19 +12,19 @@ import { formatCurrency } from '@/lib/utils'
 import { useAppStore } from '@/store/appStore'
 import {
   Card,
+  DashboardMenuCards,
   EmptyState,
   GradientButton,
+  ImageCarousel,
   LanguageToggle,
   Monogram,
   Screen,
   showToast,
-  useIsRtl,
 } from '@/ui'
 
 export function NurseDashboardScreen() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const rtl = useIsRtl()
   const user = useAppStore((s) => s.user)
   const bookings = useAppStore((s) => s.bookings)
   const appointments = useAppStore((s) => s.appointments)
@@ -35,8 +36,26 @@ export function NurseDashboardScreen() {
   const ongoing = appointments.filter((a) => a.status === 'ongoing').length
 
   const menu = [
-    { icon: <User size={18} />, title: t('profile.title'), to: '/nurse/profile' },
-    { icon: <Wallet size={18} />, title: t('patientDash.wallet'), to: '/nurse/dashboard/wallet' },
+    {
+      icon: <User size={18} />,
+      title: t('profile.title'),
+      onClick: () => navigate('/nurse/profile'),
+    },
+    {
+      icon: <Wallet size={18} />,
+      title: t('patientDash.wallet'),
+      onClick: () => navigate('/nurse/dashboard/wallet'),
+    },
+    {
+      icon: <Settings size={18} />,
+      title: t('patientDash.settings'),
+      onClick: () => navigate('/nurse/dashboard/settings'),
+    },
+    {
+      icon: <CircleHelp size={18} />,
+      title: t('nurseDash.help'),
+      onClick: () => showToast({ type: 'info', message: t('nurseDash.helpDemo') }),
+    },
     {
       icon: <Shield size={18} />,
       title: t('patientDash.privacy'),
@@ -97,23 +116,9 @@ export function NurseDashboardScreen() {
         </Card>
       </div>
 
-      <h3 className="mb-2 text-sm font-extrabold text-ink">{t('nurseDash.menu')}</h3>
-      <div className="space-y-2">
-        {menu.map((m) => (
-          <button
-            key={m.title}
-            type="button"
-            onClick={() => (m.onClick ? m.onClick() : navigate(m.to!))}
-            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mist text-seafoam">
-              {m.icon}
-            </span>
-            <span className="flex-1 text-start font-bold text-ink">{m.title}</span>
-            <ChevronRight size={16} className={`text-muted ${rtl ? 'rotate-180' : ''}`} />
-          </button>
-        ))}
-      </div>
+      <ImageCarousel />
+
+      <DashboardMenuCards title={t('nurseDash.menu')} items={menu} />
     </Screen>
   )
 }

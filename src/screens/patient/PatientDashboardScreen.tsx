@@ -1,6 +1,5 @@
 import {
   Calendar,
-  ChevronRight,
   LogOut,
   Settings,
   Shield,
@@ -12,12 +11,19 @@ import { useNavigate } from 'react-router-dom'
 import { PLANS } from '@/data/seed'
 import { formatCurrency } from '@/lib/utils'
 import { useAppStore } from '@/store/appStore'
-import { Card, LanguageToggle, Monogram, Screen, showToast, useIsRtl } from '@/ui'
+import {
+  Card,
+  DashboardMenuCards,
+  ImageCarousel,
+  LanguageToggle,
+  Monogram,
+  Screen,
+  showToast,
+} from '@/ui'
 
 export function PatientDashboardScreen() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const rtl = useIsRtl()
   const user = useAppStore((s) => s.user)
   const selectedPatientId = useAppStore((s) => s.selectedPatientId)
   const patients = useAppStore((s) => s.patients)
@@ -36,10 +42,26 @@ export function PatientDashboardScreen() {
   )
 
   const menu = [
-    { icon: <User size={18} />, title: t('patientDash.profile'), to: '/patient/profile' },
-    { icon: <Wallet size={18} />, title: t('patientDash.wallet'), to: '/patient/dashboard/wallet' },
-    { icon: <Settings size={18} />, title: t('patientDash.settings'), to: '/patient/dashboard/settings' },
-    { icon: <Calendar size={18} />, title: t('patientDash.updatePlan'), to: '/patient/dashboard/plan' },
+    {
+      icon: <User size={18} />,
+      title: t('patientDash.profile'),
+      onClick: () => navigate('/patient/profile'),
+    },
+    {
+      icon: <Wallet size={18} />,
+      title: t('patientDash.wallet'),
+      onClick: () => navigate('/patient/dashboard/wallet'),
+    },
+    {
+      icon: <Settings size={18} />,
+      title: t('patientDash.settings'),
+      onClick: () => navigate('/patient/dashboard/settings'),
+    },
+    {
+      icon: <Calendar size={18} />,
+      title: t('patientDash.updatePlan'),
+      onClick: () => navigate('/patient/dashboard/plan'),
+    },
     {
       icon: <Shield size={18} />,
       title: t('patientDash.privacy'),
@@ -82,82 +104,40 @@ export function PatientDashboardScreen() {
         <h2 className="text-xl font-extrabold">
           {patient?.name || t('patientDash.selectPatient')}
         </h2>
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-3 flex gap-4 text-sm">
           <div>
-            <p className="text-xs text-white/70">{t('patientDash.wallet')}</p>
-            <p className="text-lg font-extrabold">{formatCurrency(walletBalance)}</p>
+            <p className="text-white/70">{t('patientDash.ongoingNow')}</p>
+            <p className="font-bold">{ongoing.length}</p>
           </div>
-          <div className="text-end">
-            <p className="text-xs text-white/70">{t('patientDash.plan')}</p>
+          <div>
+            <p className="text-white/70">{t('patientDash.upcoming')}</p>
+            <p className="font-bold">{upcoming.length}</p>
+          </div>
+          <div>
+            <p className="text-white/70">{t('patientDash.wallet')}</p>
+            <p className="font-bold">{formatCurrency(walletBalance)}</p>
+          </div>
+          <div className="ms-auto text-end">
+            <p className="text-white/70">{t('patientDash.plan')}</p>
             <p className="font-bold">{plan?.name}</p>
           </div>
         </div>
       </Card>
 
-      {ongoing.length > 0 && (
-        <>
-          <h3 className="mb-2 text-sm font-extrabold text-ink">{t('patientDash.ongoingNow')}</h3>
-          {ongoing.map((a) => (
-            <Card
-              key={a.id}
-              className="mb-3 border-coral/30"
-              onClick={() => navigate(`/patient/appointments/${a.id}`)}
-            >
-              <span className="mb-1 inline-flex rounded-full bg-coral/15 px-2 py-0.5 text-[10px] font-bold uppercase text-coral">
-                {t('status.ongoingBadge')}
-              </span>
-              <p className="font-bold text-ink">{a.service}</p>
-              <p className="text-xs text-muted">
-                {a.nurseName} · {t('patientDash.started')}{' '}
-                {a.startedAt
-                  ? new Date(a.startedAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
-                  : a.time}
-              </p>
-            </Card>
-          ))}
-        </>
-      )}
-
-      <h3 className="mb-2 text-sm font-extrabold text-ink">{t('patientDash.upcoming')}</h3>
-      {upcoming.length === 0 ? (
-        <Card className="mb-4">
-          <p className="text-sm text-muted">{t('patientDash.noUpcoming')}</p>
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <Card onClick={() => navigate('/patient/appointments')}>
+          <p className="text-2xl font-extrabold text-coral">{ongoing.length}</p>
+          <p className="text-xs font-semibold text-muted">{t('patientDash.ongoingNow')}</p>
         </Card>
-      ) : (
-        upcoming.slice(0, 2).map((a) => (
-          <Card
-            key={a.id}
-            className="mb-2"
-            onClick={() => navigate(`/patient/appointments/${a.id}`)}
-          >
-            <p className="font-bold text-ink">{a.service}</p>
-            <p className="text-xs text-muted">
-              {a.date} · {a.time} · {a.nurseName}
-            </p>
-          </Card>
-        ))
-      )}
-
-      <h3 className="mb-2 mt-3 text-sm font-extrabold text-ink">{t('patientDash.quickMenu')}</h3>
-      <div className="space-y-2">
-        {menu.map((m) => (
-          <button
-            key={m.title}
-            type="button"
-            onClick={() => (m.onClick ? m.onClick() : navigate(m.to!))}
-            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-white/95 px-4 py-3 text-start shadow-sm"
-          >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-mist text-seafoam">
-              {m.icon}
-            </span>
-            <span className="flex-1 font-bold text-ink">{m.title}</span>
-            <ChevronRight size={16} className={`text-muted ${rtl ? 'rotate-180' : ''}`} />
-          </button>
-        ))}
+        <Card onClick={() => navigate('/patient/appointments')}>
+          <p className="text-2xl font-extrabold text-seafoam">{upcoming.length}</p>
+          <p className="text-xs font-semibold text-muted">{t('patientDash.upcoming')}</p>
+        </Card>
       </div>
+
+      <ImageCarousel />
+
+      <DashboardMenuCards title={t('patientDash.quickMenu')} items={menu} />
     </Screen>
   )
 }

@@ -498,6 +498,8 @@ export function SettingsScreen() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation()
   const isAr = i18n.language?.startsWith('ar')
+  const user = useAppStore((s) => s.user)
+  const isNurse = user?.userType === 'Nurse'
 
   return (
     <Screen>
@@ -519,9 +521,11 @@ export function SettingsScreen() {
             <span className="h-5 w-5 rounded-full bg-white shadow" />
           </span>
         </button>
-        <GradientButton variant="secondary" onClick={() => navigate('/patient/dashboard/plan')}>
-          {t('settings.managePlan')}
-        </GradientButton>
+        {!isNurse && (
+          <GradientButton variant="secondary" onClick={() => navigate('/patient/dashboard/plan')}>
+            {t('settings.managePlan')}
+          </GradientButton>
+        )}
       </Card>
     </Screen>
   )

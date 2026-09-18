@@ -337,6 +337,7 @@
     "ongoingVisits": "Ongoing visits",
     "menu": "Menu",
     "help": "Help",
+    "helpDemo": "Help & support (demo)",
     "payoutRequested": "Payout requested (demo)",
     "requestPayout": "Request payout",
     "availableEarnings": "Available earnings",
@@ -401,6 +402,14 @@
   "wallet": {
     "topUp": "Wallet top-up",
     "promo": "Promo credit"
+  },
+  "carousel": {
+    "careTitle": "Expert medical care",
+    "careSubtitle": "Skilled professionals by your side",
+    "nursingTitle": "Home nursing support",
+    "nursingSubtitle": "Compassionate care where you live",
+    "doctorsTitle": "Trusted doctors",
+    "doctorsSubtitle": "Healthcare you can count on"
   },
   "map": {
     "title": "Live location",
