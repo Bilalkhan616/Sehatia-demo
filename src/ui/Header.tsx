@@ -1,6 +1,8 @@
 import { ChevronLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useIsRtl } from './LanguageToggle'
 
 type Props = {
   title?: string
@@ -20,6 +22,8 @@ export function Header({
   showBack = true,
 }: Props) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const rtl = useIsRtl()
 
   return (
     <div className={cn('mb-4 flex items-center gap-3', className)}>
@@ -28,9 +32,9 @@ export function Header({
           type="button"
           onClick={onBack ?? (() => navigate(-1))}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/90 text-ink shadow-sm"
-          aria-label="Back"
+          aria-label={t('common.back')}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={20} className={rtl ? 'rotate-180' : undefined} />
         </button>
       ) : (
         <div className="w-10" />

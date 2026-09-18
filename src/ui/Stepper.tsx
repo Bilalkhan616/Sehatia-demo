@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -7,12 +8,11 @@ type Props = {
 }
 
 export function Stepper({ step, total, className }: Props) {
+  const { t } = useTranslation()
   return (
     <div className={cn('mb-4', className)}>
       <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted">
-        <span>
-          Step {step} of {total}
-        </span>
+        <span>{t('common.stepOf', { step, total })}</span>
         <span>{Math.round((step / total) * 100)}%</span>
       </div>
       <div className="flex gap-1.5">

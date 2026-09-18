@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 }
 
 export function PhoneFrame({ children, className }: Props) {
+  const { t, i18n } = useTranslation()
   const [isNarrow, setIsNarrow] = useState(false)
   const [time, setTime] = useState('')
 
@@ -21,14 +23,13 @@ export function PhoneFrame({ children, className }: Props) {
   useEffect(() => {
     const tick = () => {
       const d = new Date()
-      setTime(
-        d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-      )
+      const locale = i18n.language?.startsWith('ar') ? 'ar-SA' : undefined
+      setTime(d.toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' }))
     }
     tick()
     const id = setInterval(tick, 30000)
     return () => clearInterval(id)
-  }, [])
+  }, [i18n.language])
 
   if (isNarrow) {
     return (
@@ -42,8 +43,8 @@ export function PhoneFrame({ children, className }: Props) {
     <div className="flex min-h-[100dvh] items-center justify-center bg-[linear-gradient(160deg,#E8F0F4_0%,#F5F9FC_50%,#DCEEF8_100%)] p-6">
       <div className="text-center">
         <div className="mb-4">
-          <p className="text-sm font-bold text-ink">Sehatia demo</p>
-          <p className="text-xs text-muted">Interactive preview — no API, mock data only</p>
+          <p className="text-sm font-bold text-ink">{t('brand.demo')}</p>
+          <p className="text-xs text-muted">{t('brand.demoSub')}</p>
         </div>
         <div
           className={cn(
@@ -52,9 +53,7 @@ export function PhoneFrame({ children, className }: Props) {
           )}
           style={{ width: 390, height: 844 }}
         >
-          {/* Dynamic island */}
           <div className="pointer-events-none absolute left-1/2 top-2 z-50 h-[28px] w-[110px] -translate-x-1/2 rounded-full bg-black" />
-          {/* Status bar */}
           <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex h-11 items-end justify-between px-7 pb-1 text-[12px] font-semibold text-ink">
             <span>{time || '9:41'}</span>
             <div className="flex items-center gap-1.5">
@@ -65,12 +64,9 @@ export function PhoneFrame({ children, className }: Props) {
               </span>
             </div>
           </div>
-          <div
-            className="absolute inset-x-0 bottom-0 top-11 flex flex-col overflow-hidden rounded-b-[34px] bg-cream"
-          >
+          <div className="absolute inset-x-0 bottom-0 top-11 flex flex-col overflow-hidden rounded-b-[34px] bg-cream">
             {children}
           </div>
-          {/* Home indicator */}
           <div className="pointer-events-none absolute bottom-2 left-1/2 z-50 h-1 w-28 -translate-x-1/2 rounded-full bg-ink/30" />
         </div>
       </div>

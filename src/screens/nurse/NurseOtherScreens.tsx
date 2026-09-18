@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LANGUAGES, SERVICES, SHIFTS } from '@/data/seed'
 import { formatCurrency, formatRelativeTime } from '@/lib/utils'
@@ -9,6 +10,7 @@ import {
   EmptyState,
   GradientButton,
   Header,
+  LanguageToggle,
   OutlinedInput,
   Screen,
   showToast,
@@ -16,6 +18,7 @@ import {
 
 export function NurseAppointmentsScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const appointments = useAppStore((s) => s.appointments)
   const [tab, setTab] = useState<'ongoing' | 'upcoming' | 'completed' | 'cancelled'>('ongoing')
   const list = appointments.filter((a) => a.status === tab)
@@ -23,33 +26,41 @@ export function NurseAppointmentsScreen() {
 
   return (
     <Screen>
-      <h1 className="mb-3 text-2xl font-extrabold text-ink">Appointments</h1>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h1 className="text-2xl font-extrabold text-ink">{t('appointments.title')}</h1>
+        <LanguageToggle compact />
+      </div>
       {ongoingCount > 0 && tab !== 'ongoing' && (
         <button
           type="button"
           onClick={() => setTab('ongoing')}
           className="mb-3 w-full rounded-2xl border border-seafoam/30 bg-mist px-4 py-3 text-left"
         >
-          <p className="text-xs font-bold uppercase tracking-wide text-seafoam-deep">Live now</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-seafoam-deep">
+            {t('status.liveNow')}
+          </p>
           <p className="text-sm font-extrabold text-ink">
-            {ongoingCount} ongoing visit{ongoingCount > 1 ? 's' : ''} — tap to open
+            {t('appointments.liveBannerNurse', { count: ongoingCount })}
           </p>
         </button>
       )}
       <div className="mb-4 flex flex-wrap gap-2">
-        {(['ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((t) => (
-          <Chip key={t} active={tab === t} onClick={() => setTab(t)} tone={t === 'ongoing' ? 'coral' : 'seafoam'}>
-            {t}
+        {(['ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((tabKey) => (
+          <Chip
+            key={tabKey}
+            active={tab === tabKey}
+            onClick={() => setTab(tabKey)}
+            tone={tabKey === 'ongoing' ? 'coral' : 'seafoam'}
+          >
+            {t(`status.${tabKey}`)}
           </Chip>
         ))}
       </div>
       {list.length === 0 ? (
         <EmptyState
-          title={`No ${tab} visits`}
+          title={t('appointments.noTabVisits', { tab: t(`status.${tab}`) })}
           message={
-            tab === 'ongoing'
-              ? 'Start an upcoming visit to move it here.'
-              : 'When something arrives, it will show up here.'
+            tab === 'ongoing' ? t('empty.noOngoingNurse') : t('empty.defaultMessage')
           }
         />
       ) : (
@@ -59,7 +70,7 @@ export function NurseAppointmentsScreen() {
               <div className="mb-1 flex items-center gap-2">
                 {a.status === 'ongoing' && (
                   <span className="rounded-full bg-coral/15 px-2 py-0.5 text-[10px] font-bold uppercase text-coral">
-                    Ongoing
+                    {t('status.ongoingBadge')}
                   </span>
                 )}
               </div>

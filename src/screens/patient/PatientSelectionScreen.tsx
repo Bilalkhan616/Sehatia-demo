@@ -1,11 +1,13 @@
 import { Plus, User } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/store/appStore'
-import { Card, GradientButton, Header, Monogram, Screen, showToast } from '@/ui'
+import { Card, GradientButton, Header, LanguageToggle, Monogram, Screen, showToast } from '@/ui'
 
 export function PatientSelectionScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const patients = useAppStore((s) => s.patients)
   const selectPatient = useAppStore((s) => s.selectPatient)
   const logout = useAppStore((s) => s.logout)
@@ -31,7 +33,7 @@ export function PatientSelectionScreen() {
     const patient = patients.find((p) => p.id === selected)
     if (!patient) return
     if (pin.join('') !== patient.pin) {
-      showToast({ type: 'danger', message: 'Incorrect PIN (demo: 1234)' })
+      showToast({ type: 'danger', message: t('patientSelect.wrongPin') })
       return
     }
     selectPatient(patient.id)
@@ -41,21 +43,24 @@ export function PatientSelectionScreen() {
 
   return (
     <Screen>
-      <div className="mb-2 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between gap-2">
         <Monogram size="sm" />
-        <button
-          type="button"
-          className="text-sm font-bold text-coral"
-          onClick={() => {
-            logout()
-            navigate('/', { replace: true })
-          }}
-        >
-          Logout
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageToggle compact />
+          <button
+            type="button"
+            className="text-sm font-bold text-coral"
+            onClick={() => {
+              logout()
+              navigate('/', { replace: true })
+            }}
+          >
+            {t('common.logout')}
+          </button>
+        </div>
       </div>
-      <h1 className="text-2xl font-extrabold text-ink">Select patient</h1>
-      <p className="mt-1 text-sm text-muted">Enter PIN to unlock their care profile</p>
+      <h1 className="text-2xl font-extrabold text-ink">{t('patientSelect.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('patientSelect.subtitle')}</p>
 
       <div className="mt-5 space-y-3">
         {patients.map((p) => (
@@ -67,7 +72,7 @@ export function PatientSelectionScreen() {
               <div className="flex-1">
                 <p className="font-extrabold text-ink">{p.name}</p>
                 <p className="text-xs text-muted">
-                  {p.age} yrs · {p.gender}
+                  {p.age} {t('patientSelect.yrs')} · {p.gender}
                   {p.condition ? ` · ${p.condition}` : ''}
                 </p>
               </div>
@@ -81,14 +86,14 @@ export function PatientSelectionScreen() {
         variant="secondary"
         onClick={() => navigate('/patient/add-patient')}
       >
-        <Plus size={18} /> Add new patient
+        <Plus size={18} /> {t('patientSelect.addNew')}
       </GradientButton>
 
       {showPin && (
         <div className="absolute inset-0 z-50 flex items-end bg-ink/40 p-4">
           <div className="w-full rounded-3xl bg-white p-5 shadow-xl">
-            <h3 className="text-lg font-extrabold text-ink">Enter patient PIN</h3>
-            <p className="text-xs text-muted">Demo PIN is 1234</p>
+            <h3 className="text-lg font-extrabold text-ink">{t('patientSelect.enterPin')}</h3>
+            <p className="text-xs text-muted">{t('patientSelect.demoPin')}</p>
             <div className="my-4 flex justify-center gap-3">
               {pin.map((d, i) => (
                 <input
@@ -104,9 +109,9 @@ export function PatientSelectionScreen() {
             </div>
             <div className="flex gap-2">
               <GradientButton variant="outline" onClick={() => setShowPin(false)}>
-                Cancel
+                {t('common.cancel')}
               </GradientButton>
-              <GradientButton onClick={confirmPin}>Unlock</GradientButton>
+              <GradientButton onClick={confirmPin}>{t('common.unlock')}</GradientButton>
             </div>
           </div>
         </div>
@@ -117,6 +122,7 @@ export function PatientSelectionScreen() {
 
 export function AddNewPatientScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const addPatient = useAppStore((s) => s.addPatient)
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
@@ -125,44 +131,63 @@ export function AddNewPatientScreen() {
 
   return (
     <Screen>
-      <Header title="Add patient" />
+      <Header title={t('addPatient.title')} />
       <Card className="space-y-3">
         <label className="block text-sm font-semibold">
-          Name
-          <input className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam" value={name} onChange={(e) => setName(e.target.value)} />
+          {t('addPatient.name')}
+          <input
+            className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </label>
         <label className="block text-sm font-semibold">
-          Age
-          <input className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam" value={age} onChange={(e) => setAge(e.target.value)} />
+          {t('addPatient.age')}
+          <input
+            className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
         </label>
         <label className="block text-sm font-semibold">
-          PIN
-          <input className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam" value={pin} onChange={(e) => setPinVal(e.target.value)} />
+          {t('addPatient.pin')}
+          <input
+            className="mt-1 w-full rounded-2xl border border-border px-3 py-3 outline-none focus:border-seafoam"
+            value={pin}
+            onChange={(e) => setPinVal(e.target.value)}
+          />
         </label>
         <div className="flex gap-2">
-          {['Male', 'Female'].map((g) => (
+          {[
+            { id: 'Male', label: t('addPatient.male') },
+            { id: 'Female', label: t('addPatient.female') },
+          ].map((g) => (
             <button
-              key={g}
+              key={g.id}
               type="button"
-              onClick={() => setGender(g)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-bold ${gender === g ? 'border-seafoam bg-seafoam text-white' : 'border-border bg-white text-ink'}`}
+              onClick={() => setGender(g.id)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-bold ${
+                gender === g.id
+                  ? 'border-seafoam bg-seafoam text-white'
+                  : 'border-border bg-white text-ink'
+              }`}
             >
-              {g}
+              {g.label}
             </button>
           ))}
         </div>
         <GradientButton
           onClick={() => {
             if (!name) {
-              showToast({ type: 'danger', message: 'Name required' })
+              showToast({ type: 'danger', message: t('addPatient.nameRequired') })
               return
             }
             addPatient({ name, age: Number(age) || 40, gender, pin: pin || '1234' })
-            showToast({ type: 'success', message: 'Patient added' })
+            showToast({ type: 'success', message: t('addPatient.saved') })
             navigate('/patient/select')
           }}
         >
-          Save patient
+          {t('common.save')} {t('addPatient.title').toLowerCase()}
         </GradientButton>
       </Card>
     </Screen>

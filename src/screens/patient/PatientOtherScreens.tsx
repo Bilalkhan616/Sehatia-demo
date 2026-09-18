@@ -1,6 +1,8 @@
 import { Star } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { setAppLanguage } from '@/i18n'
 import { formatCurrency, formatRelativeTime } from '@/lib/utils'
 import { useAppStore } from '@/store/appStore'
 import {
@@ -9,6 +11,7 @@ import {
   EmptyState,
   GradientButton,
   Header,
+  LanguageToggle,
   OutlinedInput,
   Screen,
   showToast,
@@ -16,6 +19,7 @@ import {
 
 export function PatientAppointmentsScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const selectedPatientId = useAppStore((s) => s.selectedPatientId)
   const appointments = useAppStore((s) => s.appointments)
   const [tab, setTab] = useState<'ongoing' | 'upcoming' | 'completed' | 'cancelled'>('ongoing')
@@ -28,33 +32,37 @@ export function PatientAppointmentsScreen() {
 
   return (
     <Screen>
-      <h1 className="mb-3 text-2xl font-extrabold text-ink">Appointments</h1>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h1 className="text-2xl font-extrabold text-ink">{t('appointments.title')}</h1>
+        <LanguageToggle compact />
+      </div>
       {ongoingCount > 0 && tab !== 'ongoing' && (
         <button
           type="button"
           onClick={() => setTab('ongoing')}
           className="mb-3 w-full rounded-2xl border border-coral/30 bg-[#FDF0EB] px-4 py-3 text-left"
         >
-          <p className="text-xs font-bold uppercase tracking-wide text-coral">Live now</p>
-          <p className="text-sm font-extrabold text-ink">
-            Nurse is with the patient — open ongoing visit
-          </p>
+          <p className="text-xs font-bold uppercase tracking-wide text-coral">{t('status.liveNow')}</p>
+          <p className="text-sm font-extrabold text-ink">{t('appointments.liveBannerPatient')}</p>
         </button>
       )}
       <div className="mb-4 flex flex-wrap gap-2">
-        {(['ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((t) => (
-          <Chip key={t} active={tab === t} onClick={() => setTab(t)} tone={t === 'ongoing' ? 'coral' : 'seafoam'}>
-            {t}
+        {(['ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((tabKey) => (
+          <Chip
+            key={tabKey}
+            active={tab === tabKey}
+            onClick={() => setTab(tabKey)}
+            tone={tabKey === 'ongoing' ? 'coral' : 'seafoam'}
+          >
+            {t(`status.${tabKey}`)}
           </Chip>
         ))}
       </div>
       {list.length === 0 ? (
         <EmptyState
-          title={`No ${tab} appointments`}
+          title={t('appointments.noTab', { tab: t(`status.${tab}`) })}
           message={
-            tab === 'ongoing'
-              ? 'When the nurse starts the visit, it appears here.'
-              : 'When something arrives, it will show up here.'
+            tab === 'ongoing' ? t('empty.noOngoingPatient') : t('empty.defaultMessage')
           }
         />
       ) : (
@@ -63,7 +71,7 @@ export function PatientAppointmentsScreen() {
             <Card key={a.id} onClick={() => navigate(`/patient/appointments/${a.id}`)}>
               {a.status === 'ongoing' && (
                 <span className="mb-1 inline-flex rounded-full bg-coral/15 px-2 py-0.5 text-[10px] font-bold uppercase text-coral">
-                  Ongoing
+                  {t('status.ongoingBadge')}
                 </span>
               )}
               <p className="font-extrabold text-ink">{a.service}</p>
@@ -479,15 +487,31 @@ export function UpdatePatientScreen() {
 
 export function SettingsScreen() {
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation()
+  const isAr = i18n.language?.startsWith('ar')
+
   return (
     <Screen>
-      <Header title="Settings" />
+      <Header title={t('settings.title')} right={<LanguageToggle compact />} />
       <Card className="space-y-3">
-        <ToggleRow label="Push notifications" />
-        <ToggleRow label="Email updates" />
-        <ToggleRow label="Arabic language" />
+        <ToggleRow label={t('settings.push')} />
+        <ToggleRow label={t('settings.email')} />
+        <button
+          type="button"
+          onClick={() => void setAppLanguage(isAr ? 'en' : 'ar')}
+          className="flex w-full items-center justify-between py-2"
+        >
+          <span className="text-sm font-bold text-ink">{t('settings.arabicLang')}</span>
+          <span
+            className={`flex h-6 w-11 items-center rounded-full px-0.5 transition ${
+              isAr ? 'justify-end bg-seafoam' : 'justify-start bg-border'
+            }`}
+          >
+            <span className="h-5 w-5 rounded-full bg-white shadow" />
+          </span>
+        </button>
         <GradientButton variant="secondary" onClick={() => navigate('/patient/dashboard/plan')}>
-          Manage plan
+          {t('settings.managePlan')}
         </GradientButton>
       </Card>
     </Screen>

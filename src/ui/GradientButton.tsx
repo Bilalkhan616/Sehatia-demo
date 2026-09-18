@@ -1,5 +1,6 @@
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useIsRtl } from './LanguageToggle'
 
 type Props = {
   children: React.ReactNode
@@ -24,6 +25,7 @@ export function GradientButton({
   type = 'button',
   fullWidth = true,
 }: Props) {
+  const rtl = useIsRtl()
   const base =
     'inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-[16px] font-bold transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none'
 
@@ -44,7 +46,9 @@ export function GradientButton({
     >
       {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
       {children}
-      {showArrow && !loading ? <ArrowRight className="h-5 w-5" /> : null}
+      {showArrow && !loading ? (
+        <ArrowRight className={cn('h-5 w-5', rtl && 'rotate-180')} />
+      ) : null}
     </button>
   )
 }

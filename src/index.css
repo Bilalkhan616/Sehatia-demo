@@ -32,6 +32,17 @@ body,
   color: var(--color-ink);
 }
 
+html[dir='rtl'] body {
+  font-family:
+    'Segoe UI',
+    Tahoma,
+    'Noto Sans Arabic',
+    'Arabic UI Text',
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
 /* Hide scrollbars inside phone but keep scroll */
 .phone-scroll::-webkit-scrollbar {
   width: 0;
