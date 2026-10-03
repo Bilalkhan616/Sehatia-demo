@@ -5,9 +5,11 @@ export type UserType = 'Nurse' | 'AccountHolder'
 export type Patient = {
   id: string
   name: string
-  pin: string
   age: number
   gender: string
+  dob?: string
+  phone?: string
+  city?: string
   condition?: string
 }
 
@@ -23,9 +25,28 @@ export type Nurse = {
   languages: string[]
   available: boolean
   bio: string
+  email?: string
+  phone?: string
+  gender?: string
+  dob?: string
+  city?: string
+  education?: string
+  experience?: string
+  reference?: string
+  license?: string
+  bankName?: string
+  iban?: string
+  availability?: string[]
+  profileComplete?: boolean
 }
 
-export type BookingStatus = 'pending' | 'accepted' | 'declined' | 'completed' | 'cancelled'
+export type BookingStatus =
+  | 'pending'
+  | 'awaiting_payment'
+  | 'confirmed'
+  | 'declined'
+  | 'completed'
+  | 'cancelled'
 
 export type Booking = {
   id: string
@@ -164,6 +185,11 @@ export const seedNurses: Nurse[] = [
     services: ['Elderly Care', 'Medication Management', 'Wound Care'],
     languages: ['Arabic', 'English'],
     available: true,
+    profileComplete: true,
+    email: 'sara@sehatia.com',
+    phone: '+966555010101',
+    gender: 'Female',
+    city: 'Riyadh',
     bio: 'Compassionate RN specializing in geriatric home care.',
   },
   {
@@ -177,6 +203,8 @@ export const seedNurses: Nurse[] = [
     services: ['Wound Care', 'Post-Surgery Care', 'IV Therapy'],
     languages: ['English', 'Urdu', 'Arabic'],
     available: true,
+    profileComplete: true,
+    city: 'Riyadh',
     bio: 'Certified wound-care specialist with hospital background.',
   },
   {
@@ -190,6 +218,8 @@ export const seedNurses: Nurse[] = [
     services: ['Maternity Care', 'Pediatric Care', 'Medication Management'],
     languages: ['Arabic', 'English'],
     available: true,
+    profileComplete: true,
+    city: 'Jeddah',
     bio: 'Warm and skilled in postpartum and newborn support.',
   },
   {
@@ -203,6 +233,8 @@ export const seedNurses: Nurse[] = [
     services: ['IV Therapy', 'Medication Management', 'Post-Surgery Care'],
     languages: ['English', 'Arabic', 'Tagalog'],
     available: false,
+    profileComplete: true,
+    city: 'Riyadh',
     bio: 'ICU-trained nurse available for complex infusions.',
   },
 ]
@@ -211,7 +243,6 @@ export const seedPatients: Patient[] = [
   {
     id: 'patient_1',
     name: 'Omar Abdullah',
-    pin: '1234',
     age: 72,
     gender: 'Male',
     condition: 'Diabetes management',
@@ -219,7 +250,6 @@ export const seedPatients: Patient[] = [
   {
     id: 'patient_2',
     name: 'Noura Al-Saud',
-    pin: '1234',
     age: 34,
     gender: 'Female',
     condition: 'Postpartum recovery',
@@ -255,7 +285,21 @@ export function createSeedBookings(): Booking[] {
       durationHours: 2,
       address: 'Jeddah, Al Zahra',
       amount: 340,
-      status: 'accepted',
+      status: 'awaiting_payment',
+    },
+    {
+      id: 'booking_3',
+      patientId: 'patient_2',
+      patientName: 'Noura Al-Saud',
+      nurseId: 'nurse_3',
+      nurseName: 'Aisha Noor',
+      service: 'Maternity Care',
+      date: '2026-10-08',
+      time: '14:00',
+      durationHours: 2,
+      address: 'Jeddah, Al Zahra',
+      amount: 340,
+      status: 'confirmed',
     },
   ]
 }
@@ -287,7 +331,7 @@ export function createSeedAppointments(): Appointment[] {
     },
     {
       id: 'appt_1',
-      bookingId: 'booking_2',
+      bookingId: 'booking_3',
       patientId: 'patient_2',
       patientName: 'Noura Al-Saud',
       nurseId: 'nurse_3',

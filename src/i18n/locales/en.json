@@ -28,7 +28,10 @@
     "english": "English",
     "arabic": "Arabic",
     "langPillAr": "عربي",
-    "langPillEn": "EN"
+    "langPillEn": "EN",
+    "later": "Later",
+    "createAccount": "Create account",
+    "listJoin": ", "
   },
   "tabs": {
     "calendar": "Calendar",
@@ -59,7 +62,7 @@
     "noConversationsHint": "Message a nurse from an appointment.",
     "noMessages": "No messages",
     "selectPatientFirst": "Select a patient first",
-    "selectPatientHint": "Unlock a patient profile to book care.",
+    "selectPatientHint": "Choose a patient profile to book care.",
     "noBookingDraft": "No booking draft",
     "threadNotFound": "Thread not found"
   },
@@ -138,7 +141,7 @@
   },
   "patientSelect": {
     "title": "Select patient",
-    "subtitle": "Enter PIN to unlock their care profile",
+    "subtitle": "Choose whose care profile to open",
     "addNew": "Add new patient",
     "enterPin": "Enter patient PIN",
     "demoPin": "Demo PIN is 1234",
@@ -223,7 +226,39 @@
     "available": "Available balance",
     "transactions": "Transactions",
     "bookingLabel": "Booking — {{name}}",
-    "perHour": "/hr"
+    "perHour": "/hr",
+    "rescheduleTitle": "Reschedule visit",
+    "reviewRequest": "Review request",
+    "sendRequest": "Send request",
+    "payAfterAccept": "Payment is requested only after the nurse accepts this visit.",
+    "requestSentTitle": "Request sent",
+    "requestSentLead": "The nurse will review your request. You’ll be asked to pay only after they accept.",
+    "viewRequests": "View requests",
+    "confirmedTitle": "Booking confirmed",
+    "confirmedLead": "Payment received. Your visit is now on the calendar.",
+    "paymentReceived": "Payment received — booking confirmed",
+    "payAfterApprovalOnly": "Payment is only available after nurse approval",
+    "cardPaySuccess": "Payment successful — booking confirmed",
+    "couldNotSend": "Could not send request",
+    "waitingApproval": "Request sent — waiting for nurse approval",
+    "noNurses": "No nurses available",
+    "noNursesHint": "Try another service, or check back when a nurse is online.",
+    "startBookingFirst": "Start a booking first",
+    "nothingToPay": "Nothing to pay yet",
+    "nothingToPayHint": "Payment opens after a nurse accepts your request.",
+    "payToConfirm": "Pay to confirm",
+    "waitingNurse": "Waiting for nurse",
+    "paymentDue": "Payment due",
+    "paymentDueBanner": "A nurse accepted {{count}} visit(s). Pay to confirm.",
+    "paymentNeeded": "Payment needed",
+    "acceptedService": "{{name}} accepted {{service}}",
+    "payToConfirmVisit": "Pay to confirm this visit.",
+    "requestsTab": "Requests",
+    "noOpenRequests": "No open requests",
+    "noOpenRequestsHint": "New bookings appear here until they are confirmed.",
+    "rescheduleWith": "Reschedule with {{name}}",
+    "pickNewDate": "Pick a new date with the same nurse",
+    "hoursShort": "{{count}}h"
   },
   "appointments": {
     "title": "Appointments",
@@ -306,7 +341,13 @@
     "referenceUpdated": "Reference updated",
     "preferencesSaved": "Preferences saved",
     "servicesUpdated": "Services updated",
-    "shiftsUpdated": "Shifts updated"
+    "shiftsUpdated": "Shifts updated",
+    "license": "License",
+    "licenseUpdated": "License updated",
+    "finishHire": "Finish your hire profile",
+    "finishHireLead": "Add {{fields}} to become available for bookings.",
+    "availableBookings": "Available for bookings",
+    "currentlyOffline": "Currently offline"
   },
   "settings": {
     "title": "Settings",
@@ -344,6 +385,25 @@
     "recentPayouts": "Recent payouts",
     "withdrawn": "withdrawn"
   },
+  "hire": {
+    "title": "Complete your profile to get hired",
+    "lead": "Patients can only book nurses with a complete hire profile. Add your education, experience, services, and shifts on your profile.",
+    "updateProfile": "Update profile",
+    "completeFirst": "Complete your hire profile first",
+    "nowOffline": "You are now offline",
+    "nowAvailable": "You are now available",
+    "setup": "Setup",
+    "online": "Online",
+    "offline": "Offline",
+    "setOffline": "Set offline",
+    "setAvailable": "Set available",
+    "field": {
+      "education": "education",
+      "experience": "experience",
+      "services": "services",
+      "shifts": "shifts"
+    }
+  },
   "requests": {
     "title": "Requests",
     "empty": "No pending requests",
@@ -352,7 +412,8 @@
     "decline": "Decline",
     "accepted": "Booking accepted",
     "declined": "Booking declined",
-    "messagePatient": "Message patient"
+    "messagePatient": "Message patient",
+    "acceptedPay": "Accepted — patient will be asked to pay"
   },
   "nurseSignup": {
     "title": "Nurse signup",
@@ -384,7 +445,12 @@
     "servicesOffer": "Services you offer",
     "pickService": "Pick at least one service",
     "finish": "Finish signup",
-    "created": "Nurse account created — please sign in"
+    "created": "Nurse account created — please sign in",
+    "hireHint": "After you sign in, complete your professional profile to get hired.",
+    "fillAll": "Fill in all fields to create your account",
+    "createdHire": "Account created — sign in to complete your hire profile",
+    "createAccount": "Create account",
+    "dob": "Date of birth"
   },
   "patientSignup": {
     "title": "Patient signup",
@@ -397,7 +463,10 @@
     "holder": "Account holder",
     "addPatient": "Add patient",
     "patientName": "Patient name",
-    "patientPin": "PIN (4 digits)"
+    "patientPin": "PIN (4 digits)",
+    "fillAll": "Fill in all fields to create your account",
+    "createAccount": "Create account",
+    "dob": "Date of birth"
   },
   "wallet": {
     "topUp": "Wallet top-up",

@@ -9,28 +9,8 @@ import { SignUpSelectionScreen } from '@/screens/unauth/SignUpSelectionScreen'
 import { ForgotPasswordScreen } from '@/screens/unauth/ForgotPasswordScreen'
 import { VerifyOtpScreen } from '@/screens/unauth/VerifyOtpScreen'
 import { ChangePasswordScreen } from '@/screens/unauth/ChangePasswordScreen'
-import {
-  NurseAvailabilityScreen,
-  NurseBankingScreen,
-  NurseCheckScreen,
-  NurseEducationScreen,
-  NurseExperienceScreen,
-  NurseInfoScreen,
-  NurseReferenceScreen,
-  NurseServicesScreen,
-  NurseSignUpScreen,
-} from '@/screens/unauth/NurseSignupScreens'
-import {
-  AddAccountHolderScreen,
-  AddPatientSignupScreen,
-  AddPlanWithPaymentScreen,
-  ChoosePlanScreen,
-  ConfirmPlanScreen,
-  PatientCheckUpScreen,
-  PatientEmailPasswordScreen,
-  PatientServiceSelectionScreen,
-  PatientSignUpScreen,
-} from '@/screens/unauth/PatientSignupScreens'
+import { NurseSignUpScreen } from '@/screens/unauth/NurseSignupScreens'
+import { PatientSignUpScreen } from '@/screens/unauth/PatientSignupScreens'
 
 import {
   AddNewPatientScreen,
@@ -40,6 +20,7 @@ import { PatientDashboardScreen } from '@/screens/patient/PatientDashboardScreen
 import {
   AddAnotherBookingScreen,
   BookingCompletedScreen,
+  BookingConfirmedScreen,
   BookingScreen,
   BookingSummaryScreen,
   FindNurseScreen,
@@ -65,6 +46,7 @@ import {
 } from '@/screens/patient/PatientOtherScreens'
 
 import {
+  NurseCompleteProfileModal,
   NurseDashboardScreen,
   NurseRequestScreen,
   NurseWalletScreen,
@@ -79,6 +61,7 @@ import {
   NurseProfileScreen,
   UpdateEducationScreen,
   UpdateExperienceScreen,
+  UpdateLicenseScreen,
   UpdatePreferenceScreen,
   UpdateReferenceScreen,
   UpdateServicesScreen,
@@ -119,6 +102,7 @@ function NurseLayout() {
     <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="relative min-h-0 flex-1 overflow-hidden">
         <Outlet />
+        <NurseCompleteProfileModal />
       </div>
       <TabBar role="nurse" />
       <ToastHost />
@@ -178,24 +162,7 @@ export default function App() {
           <Route path="/change-password" element={<ChangePasswordScreen />} />
 
           <Route path="/signup/nurse" element={<NurseSignUpScreen />} />
-          <Route path="/signup/nurse/info" element={<NurseInfoScreen />} />
-          <Route path="/signup/nurse/education" element={<NurseEducationScreen />} />
-          <Route path="/signup/nurse/experience" element={<NurseExperienceScreen />} />
-          <Route path="/signup/nurse/reference" element={<NurseReferenceScreen />} />
-          <Route path="/signup/nurse/check" element={<NurseCheckScreen />} />
-          <Route path="/signup/nurse/banking" element={<NurseBankingScreen />} />
-          <Route path="/signup/nurse/availability" element={<NurseAvailabilityScreen />} />
-          <Route path="/signup/nurse/services" element={<NurseServicesScreen />} />
-
           <Route path="/signup/patient" element={<PatientSignUpScreen />} />
-          <Route path="/signup/patient/services" element={<PatientServiceSelectionScreen />} />
-          <Route path="/signup/patient/checkup" element={<PatientCheckUpScreen />} />
-          <Route path="/signup/patient/credentials" element={<PatientEmailPasswordScreen />} />
-          <Route path="/signup/patient/holder" element={<AddAccountHolderScreen />} />
-          <Route path="/signup/patient/add-patient" element={<AddPatientSignupScreen />} />
-          <Route path="/signup/patient/plan" element={<ChoosePlanScreen />} />
-          <Route path="/signup/patient/confirm-plan" element={<ConfirmPlanScreen />} />
-          <Route path="/signup/patient/payment" element={<AddPlanWithPaymentScreen />} />
         </Route>
 
         <Route
@@ -219,6 +186,7 @@ export default function App() {
           <Route path="profile" element={<NurseProfileScreen />} />
           <Route path="profile/education" element={<UpdateEducationScreen />} />
           <Route path="profile/experience" element={<UpdateExperienceScreen />} />
+          <Route path="profile/license" element={<UpdateLicenseScreen />} />
           <Route path="profile/reference" element={<UpdateReferenceScreen />} />
           <Route path="profile/preference" element={<UpdatePreferenceScreen />} />
           <Route path="profile/services" element={<UpdateServicesScreen />} />
@@ -244,10 +212,11 @@ export default function App() {
           <Route path="booking" element={<BookingScreen />} />
           <Route path="booking/find" element={<FindNurseScreen />} />
           <Route path="booking/summary" element={<BookingSummaryScreen />} />
-          <Route path="booking/payment" element={<PaymentScreen />} />
+          <Route path="booking/payment/:bookingId" element={<PaymentScreen />} />
+          <Route path="booking/payment/:bookingId/card" element={<InitialPaymentScreen />} />
           <Route path="booking/wallet" element={<WalletTopUpScreen />} />
-          <Route path="booking/initial-payment" element={<InitialPaymentScreen />} />
           <Route path="booking/completed" element={<BookingCompletedScreen />} />
+          <Route path="booking/confirmed" element={<BookingConfirmedScreen />} />
           <Route path="booking/another" element={<AddAnotherBookingScreen />} />
           <Route path="booking/suggest" element={<NurseSuggestionScreen />} />
           <Route path="appointments" element={<PatientAppointmentsScreen />} />

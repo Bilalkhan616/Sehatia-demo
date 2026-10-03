@@ -42,3 +42,14 @@ export function formatRelativeTime(dateString: string) {
 export function uid(prefix = 'id') {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`
 }
+
+export function ageFromDob(dob: string) {
+  if (!dob) return 40
+  const birth = new Date(dob)
+  if (Number.isNaN(birth.getTime())) return 40
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age -= 1
+  return Math.max(0, age)
+}

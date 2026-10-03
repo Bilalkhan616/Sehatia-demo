@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { uid } from '@/lib/utils'
+import { ageFromDob, uid } from '@/lib/utils'
 import {
   type Appointment,
   type Booking,
@@ -31,6 +31,7 @@ export type BookingDraft = {
   nurseId?: string
   nurseName?: string
   amount?: number
+  lockNurse?: boolean
 }
 
 export type NurseSignupDraft = {
@@ -39,32 +40,26 @@ export type NurseSignupDraft = {
   fullName: string
   phone: string
   gender: string
+  dob: string
   city: string
-  education: string
-  experience: string
-  reference: string
-  license: string
-  bankName: string
-  iban: string
-  availability: string[]
-  services: string[]
-  languages: string[]
 }
 
 export type PatientSignupDraft = {
   email: string
   password: string
-  holderName: string
+  name: string
   phone: string
   gender: string
+  dob: string
   city: string
-  services: string[]
-  checkupNotes: string
-  patientName: string
-  patientAge: string
-  patientGender: string
-  patientPin: string
-  planId: string
+}
+
+export type RegisteredAccount = {
+  email: string
+  password: string
+  name: string
+  userType: UserType
+  entityId: string
 }
 
 type AuthUser = {
@@ -91,6 +86,8 @@ type AppState = {
   nurseSignup: NurseSignupDraft
   patientSignup: PatientSignupDraft
   pendingLogin: { email: string; password: string } | null
+  registeredAccounts: RegisteredAccount[]
+  dismissNurseProfilePrompt: boolean
 
   setPendingLogin: (email: string, password: string) => void
   loginAs: (role: UserType) => void
@@ -104,6 +101,8 @@ type AppState = {
   createBookingFromDraft: () => string | null
   acceptBooking: (id: string) => void
   declineBooking: (id: string) => void
+  payBooking: (id: string, method: 'wallet' | 'card') => boolean
+  startReschedule: (appointmentId: string) => boolean
   cancelAppointment: (id: string, reason: string) => void
   startAppointment: (id: string) => void
   completeAppointment: (id: string) => void
@@ -129,6 +128,9 @@ type AppState = {
 
   setActivePlan: (planId: string) => void
   updateNurseProfile: (patch: Partial<Nurse>) => void
+  setNurseAvailable: (available: boolean) => void
+  setDismissNurseProfilePrompt: (v: boolean) => void
+  getCurrentNurse: () => Nurse | undefined
   getPlans: () => Plan[]
 }
 
@@ -138,35 +140,41 @@ const emptyNurseSignup = (): NurseSignupDraft => ({
   fullName: '',
   phone: '',
   gender: 'Female',
+  dob: '',
   city: '',
-  education: '',
-  experience: '',
-  reference: '',
-  license: '',
-  bankName: '',
-  iban: '',
-  availability: [],
-  services: [],
-  languages: [],
 })
 
 const emptyPatientSignup = (): PatientSignupDraft => ({
   email: '',
   password: '',
-  holderName: '',
+  name: '',
   phone: '',
   gender: 'Female',
+  dob: '',
   city: '',
-  services: [],
-  checkupNotes: '',
-  patientName: '',
-  patientAge: '',
-  patientGender: 'Male',
-  patientPin: '1234',
-  planId: 'plan2',
 })
 
 const wallet = createSeedWallet()
+
+function currentNurseId(state: { user: AuthUser | null; nurses: Nurse[] }) {
+  if (state.user?.userType !== 'Nurse') return undefined
+  if (state.nurses.some((n) => n.id === state.user?.id)) return state.user.id
+  return state.nurses[0]?.id
+}
+
+export function isNurseHireReady(n: {
+  education?: string
+  experience?: string
+  services?: string[]
+  availability?: string[]
+}) {
+  return Boolean(
+    n.education?.trim() &&
+      n.experience?.trim() &&
+      n.services?.length &&
+      n.availability?.length,
+  )
+}
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -187,31 +195,43 @@ export const useAppStore = create<AppState>()(
       nurseSignup: emptyNurseSignup(),
       patientSignup: emptyPatientSignup(),
       pendingLogin: null,
+      registeredAccounts: [],
+      dismissNurseProfilePrompt: false,
 
       setPendingLogin: (email, password) => set({ pendingLogin: { email, password } }),
 
       loginAs: (role) => {
         const pending = get().pendingLogin
         const email = pending?.email || 'demo@sehatia.com'
+        const registered = get().registeredAccounts.find(
+          (a) => a.email.toLowerCase() === email.toLowerCase() && a.userType === role,
+        )
+
         if (role === 'Nurse') {
+          const nurse =
+            get().nurses.find((n) => n.id === registered?.entityId) ||
+            get().nurses.find((n) => n.email?.toLowerCase() === email.toLowerCase()) ||
+            get().nurses.find((n) => n.id === 'nurse_1') ||
+            get().nurses[0]
           set({
             isAuthenticated: true,
             user: {
-              id: 'nurse_demo',
+              id: nurse?.id || 'nurse_1',
               email,
-              name: 'Sara Al-Harbi',
+              name: registered?.name || nurse?.name || 'Sara Al-Harbi',
               userType: 'Nurse',
             },
             pendingLogin: null,
             selectedPatientId: null,
+            dismissNurseProfilePrompt: false,
           })
         } else {
           set({
             isAuthenticated: true,
             user: {
-              id: 'account_1',
+              id: registered?.entityId || 'account_1',
               email,
-              name: 'Maha Account Holder',
+              name: registered?.name || 'Maha Account Holder',
               userType: 'AccountHolder',
             },
             pendingLogin: null,
@@ -227,6 +247,7 @@ export const useAppStore = create<AppState>()(
           selectedPatientId: null,
           bookingDraft: null,
           pendingLogin: null,
+          dismissNurseProfilePrompt: false,
         }),
 
       selectPatient: (id) => set({ selectedPatientId: id }),
@@ -262,7 +283,7 @@ export const useAppStore = create<AppState>()(
         const draft = get().bookingDraft
         if (!draft?.nurseId || !draft.service) return null
         const nurse = get().nurses.find((n) => n.id === draft.nurseId)
-        const amount = draft.amount ?? (nurse?.rate ?? 150) * draft.durationHours
+        const amount = (nurse?.rate ?? 150) * draft.durationHours
         const id = uid('booking')
         const booking: Booking = {
           id,
@@ -288,7 +309,28 @@ export const useAppStore = create<AppState>()(
         if (!booking) return
         set((s) => ({
           bookings: s.bookings.map((b) =>
-            b.id === id ? { ...b, status: 'accepted' as const } : b,
+            b.id === id ? { ...b, status: 'awaiting_payment' as const } : b,
+          ),
+        }))
+      },
+
+      declineBooking: (id) =>
+        set((s) => ({
+          bookings: s.bookings.map((b) =>
+            b.id === id ? { ...b, status: 'declined' as const } : b,
+          ),
+        })),
+
+      payBooking: (id, method) => {
+        const booking = get().bookings.find((b) => b.id === id)
+        if (!booking || booking.status !== 'awaiting_payment') return false
+        if (method === 'wallet') {
+          const ok = get().payFromWallet(booking.amount, `Booking — ${booking.nurseName}`)
+          if (!ok) return false
+        }
+        set((s) => ({
+          bookings: s.bookings.map((b) =>
+            b.id === id ? { ...b, status: 'confirmed' as const } : b,
           ),
           appointments: [
             {
@@ -296,8 +338,8 @@ export const useAppStore = create<AppState>()(
               bookingId: id,
               patientId: booking.patientId,
               patientName: booking.patientName,
-              nurseId: booking.nurseId || 'nurse_demo',
-              nurseName: booking.nurseName || get().user?.name || 'Nurse',
+              nurseId: booking.nurseId || 'nurse_1',
+              nurseName: booking.nurseName || 'Nurse',
               service: booking.service,
               date: booking.date,
               time: booking.time,
@@ -308,14 +350,34 @@ export const useAppStore = create<AppState>()(
             ...s.appointments,
           ],
         }))
+        return true
       },
 
-      declineBooking: (id) =>
-        set((s) => ({
-          bookings: s.bookings.map((b) =>
-            b.id === id ? { ...b, status: 'declined' as const } : b,
-          ),
-        })),
+      startReschedule: (appointmentId) => {
+        const appt = get().appointments.find((a) => a.id === appointmentId)
+        const patientId = get().selectedPatientId
+        if (!appt) return false
+        const nurse = get().nurses.find((n) => n.id === appt.nurseId)
+        set({
+          bookingDraft: {
+            patientId: patientId || appt.patientId,
+            patientName:
+              get().patients.find((p) => p.id === (patientId || appt.patientId))?.name ||
+              appt.patientName,
+            service: appt.service,
+            date: '',
+            time: '',
+            durationHours: 2,
+            address: appt.address,
+            notes: '',
+            nurseId: appt.nurseId,
+            nurseName: appt.nurseName,
+            amount: (nurse?.rate ?? appt.amount) * 2,
+            lockNurse: true,
+          },
+        })
+        return true
+      },
 
       cancelAppointment: (id) =>
         set((s) => ({
@@ -354,6 +416,10 @@ export const useAppStore = create<AppState>()(
                 }
               : a,
           ),
+          bookings: s.bookings.map((b) => {
+            const appt = s.appointments.find((a) => a.id === id)
+            return appt && b.id === appt.bookingId ? { ...b, status: 'completed' as const } : b
+          }),
         })),
 
       toggleChecklistItem: (id, key) =>
@@ -470,22 +536,39 @@ export const useAppStore = create<AppState>()(
       resetNurseSignup: () => set({ nurseSignup: emptyNurseSignup() }),
       completeNurseSignup: () => {
         const d = get().nurseSignup
+        const id = uid('nurse')
         set((s) => ({
           nurses: [
             {
-              id: uid('nurse'),
+              id,
               name: d.fullName || 'New Nurse',
-              specialty: d.services[0] || 'Home Care',
+              specialty: 'Home Care',
               rating: 5,
-              experienceYears: 1,
+              experienceYears: 0,
               rate: 150,
               avatar: '/images/nurseW.png',
-              services: d.services,
-              languages: d.languages.length ? d.languages : ['English'],
-              available: true,
-              bio: d.experience || 'New Sehatia nurse',
+              services: [],
+              languages: ['English'],
+              available: false,
+              profileComplete: false,
+              email: d.email,
+              phone: d.phone,
+              gender: d.gender,
+              dob: d.dob,
+              city: d.city,
+              bio: '',
             },
             ...s.nurses,
+          ],
+          registeredAccounts: [
+            {
+              email: d.email,
+              password: d.password,
+              name: d.fullName || 'New Nurse',
+              userType: 'Nurse',
+              entityId: id,
+            },
+            ...s.registeredAccounts,
           ],
           nurseSignup: emptyNurseSignup(),
         }))
@@ -501,35 +584,77 @@ export const useAppStore = create<AppState>()(
           patients: [
             {
               id: patientId,
-              name: d.patientName || 'New Patient',
-              pin: d.patientPin || '1234',
-              age: Number(d.patientAge) || 40,
-              gender: d.patientGender,
+              name: d.name || 'New Patient',
+              age: ageFromDob(d.dob),
+              gender: d.gender,
+              dob: d.dob,
+              phone: d.phone,
+              city: d.city,
             },
             ...s.patients,
           ],
-          activePlanId: d.planId || 'plan2',
+          registeredAccounts: [
+            {
+              email: d.email,
+              password: d.password,
+              name: d.name || 'New Patient',
+              userType: 'AccountHolder',
+              entityId: patientId,
+            },
+            ...s.registeredAccounts,
+          ],
           patientSignup: emptyPatientSignup(),
         }))
       },
 
       setActivePlan: (planId) => set({ activePlanId: planId }),
 
+      getCurrentNurse: () => {
+        const s = get()
+        const id = currentNurseId(s)
+        return s.nurses.find((n) => n.id === id)
+      },
+
       updateNurseProfile: (patch) => {
-        const user = get().user
-        if (!user) return
-        // Update demo nurse or first matching
+        const id = currentNurseId(get())
+        if (!id) return
+        set((s) => {
+          let ready = false
+          return {
+            nurses: s.nurses.map((n) => {
+              if (n.id !== id) return n
+              const next = { ...n, ...patch }
+              ready = isNurseHireReady(next)
+              return {
+                ...next,
+                profileComplete: ready,
+                available: ready ? (patch.available ?? (n.profileComplete ? next.available : true)) : false,
+                specialty: next.services?.[0] || next.specialty,
+              }
+            }),
+            dismissNurseProfilePrompt: ready ? true : s.dismissNurseProfilePrompt,
+            user:
+              s.user && patch.name
+                ? { ...s.user, name: patch.name }
+                : s.user,
+          }
+        })
+      },
+
+      setNurseAvailable: (available) => {
+        const id = currentNurseId(get())
+        if (!id) return
         set((s) => ({
-          nurses: s.nurses.map((n, i) =>
-            i === 0 || n.id === 'nurse_1' ? { ...n, ...patch } : n,
-          ),
+          nurses: s.nurses.map((n) => (n.id === id ? { ...n, available } : n)),
         }))
       },
+
+      setDismissNurseProfilePrompt: (v) => set({ dismissNurseProfilePrompt: v }),
 
       getPlans: () => PLANS,
     }),
     {
-      name: 'sehatia-demo-store-v2',
+      name: 'sehatia-demo-store-v3',
       partialize: (s) => ({
         isAuthenticated: s.isAuthenticated,
         user: s.user,
@@ -543,6 +668,7 @@ export const useAppStore = create<AppState>()(
         walletTxs: s.walletTxs,
         nurseWalletBalance: s.nurseWalletBalance,
         activePlanId: s.activePlanId,
+        registeredAccounts: s.registeredAccounts,
       }),
     },
   ),

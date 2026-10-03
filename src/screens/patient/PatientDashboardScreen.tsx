@@ -28,6 +28,7 @@ export function PatientDashboardScreen() {
   const selectedPatientId = useAppStore((s) => s.selectedPatientId)
   const patients = useAppStore((s) => s.patients)
   const appointments = useAppStore((s) => s.appointments)
+  const bookings = useAppStore((s) => s.bookings)
   const walletBalance = useAppStore((s) => s.walletBalance)
   const activePlanId = useAppStore((s) => s.activePlanId)
   const logout = useAppStore((s) => s.logout)
@@ -39,6 +40,10 @@ export function PatientDashboardScreen() {
   )
   const ongoing = appointments.filter(
     (a) => a.status === 'ongoing' && (!selectedPatientId || a.patientId === selectedPatientId),
+  )
+  const payDue = bookings.filter(
+    (b) =>
+      b.status === 'awaiting_payment' && (!selectedPatientId || b.patientId === selectedPatientId),
   )
 
   const menu = [
@@ -98,6 +103,21 @@ export function PatientDashboardScreen() {
           </button>
         </div>
       </div>
+
+      {payDue.length > 0 && (
+        <Card
+          className="mb-4"
+          onClick={() => navigate(`/patient/booking/payment/${payDue[0].id}`)}
+        >
+          <p className="text-xs font-bold uppercase tracking-wide text-seafoam">
+            {t('booking.paymentNeeded')}
+          </p>
+          <p className="font-extrabold text-ink">
+            {t('booking.acceptedService', { name: payDue[0].nurseName, service: payDue[0].service })}
+          </p>
+          <p className="text-xs text-muted">{t('booking.payToConfirmVisit')}</p>
+        </Card>
+      )}
 
       <Card className="gradient-hero mb-4 !border-0 text-white">
         <p className="text-sm font-medium text-white/80">{t('patientDash.activePatient')}</p>

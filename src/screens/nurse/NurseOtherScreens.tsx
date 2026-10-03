@@ -437,21 +437,30 @@ export function NurseChatMessageScreen() {
 
 export function NurseProfileScreen() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const user = useAppStore((s) => s.user)
-  const nurse = useAppStore((s) => s.nurses[0])
+  const nurses = useAppStore((s) => s.nurses)
+  const nurse = nurses.find((n) => n.id === user?.id) || nurses[0]
+  const missingKeys = [
+    !nurse?.education?.trim() && 'education',
+    !nurse?.experience?.trim() && 'experience',
+    !nurse?.services?.length && 'services',
+    !nurse?.availability?.length && 'shifts',
+  ].filter(Boolean) as Array<'education' | 'experience' | 'services' | 'shifts'>
 
   const links = [
-    { title: 'Education', to: '/nurse/profile/education' },
-    { title: 'Experience', to: '/nurse/profile/experience' },
-    { title: 'References', to: '/nurse/profile/reference' },
-    { title: 'Preferences', to: '/nurse/profile/preference' },
-    { title: 'Services', to: '/nurse/profile/services' },
-    { title: 'Shifts', to: '/nurse/profile/shifts' },
+    { title: t('profile.education'), to: '/nurse/profile/education', hint: nurse?.education },
+    { title: t('profile.experience'), to: '/nurse/profile/experience', hint: nurse?.experience },
+    { title: t('profile.license'), to: '/nurse/profile/license', hint: nurse?.license },
+    { title: t('profile.references'), to: '/nurse/profile/reference', hint: nurse?.reference },
+    { title: t('profile.preferences'), to: '/nurse/profile/preference', hint: nurse?.languages?.join(', ') },
+    { title: t('profile.services'), to: '/nurse/profile/services', hint: nurse?.services?.join(', ') },
+    { title: t('profile.shifts'), to: '/nurse/profile/shifts', hint: nurse?.availability?.join(', ') },
   ]
 
   return (
     <Screen>
-      <h1 className="mb-4 text-2xl font-extrabold text-ink">Profile</h1>
+      <h1 className="mb-4 text-2xl font-extrabold text-ink">{t('profile.title')}</h1>
       <Card className="mb-4 text-center">
         <img
           src={nurse?.avatar || '/images/nurseW.png'}
@@ -463,11 +472,25 @@ export function NurseProfileScreen() {
         <p className="mt-1 text-sm font-bold text-seafoam">
           ★ {nurse?.rating} · {nurse?.experienceYears} yrs
         </p>
+        <p className="mt-2 text-xs font-semibold text-muted">
+          {nurse?.available ? t('profile.availableBookings') : t('profile.currentlyOffline')}
+        </p>
       </Card>
+      {missingKeys.length > 0 && (
+        <Card className="mb-3">
+          <p className="font-extrabold text-ink">{t('profile.finishHire')}</p>
+          <p className="mt-1 text-xs text-muted">
+            {t('profile.finishHireLead', {
+              fields: missingKeys.map((k) => t(`hire.field.${k}`)).join(t('common.listJoin')),
+            })}
+          </p>
+        </Card>
+      )}
       <div className="space-y-2">
         {links.map((l) => (
           <Card key={l.to} onClick={() => navigate(l.to)}>
             <p className="font-bold text-ink">{l.title}</p>
+            {l.hint ? <p className="mt-0.5 truncate text-xs text-muted">{l.hint}</p> : null}
           </Card>
         ))}
       </div>
@@ -492,18 +515,22 @@ function ProfileEditShell({
 
 export function UpdateEducationScreen() {
   const navigate = useNavigate()
-  const [value, setValue] = useState('BSN — King Saud University')
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [value, setValue] = useState(nurse?.education || '')
   return (
-    <ProfileEditShell title="Education">
-      <OutlinedInput label="Education" value={value} onChange={setValue} />
+    <ProfileEditShell title={t('profile.education')}>
+      <OutlinedInput label={t('nurseSignup.educationLabel')} value={value} onChange={setValue} />
       <GradientButton
         className="mt-4"
         onClick={() => {
-          showToast({ type: 'success', message: 'Education updated' })
+          updateNurseProfile({ education: value })
+          showToast({ type: 'success', message: t('profile.educationUpdated') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )
@@ -511,18 +538,45 @@ export function UpdateEducationScreen() {
 
 export function UpdateExperienceScreen() {
   const navigate = useNavigate()
-  const [value, setValue] = useState('8 years home & geriatric care')
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [value, setValue] = useState(nurse?.experience || '')
   return (
-    <ProfileEditShell title="Experience">
-      <OutlinedInput label="Experience" value={value} onChange={setValue} />
+    <ProfileEditShell title={t('profile.experience')}>
+      <OutlinedInput label={t('nurseSignup.experienceLabel')} value={value} onChange={setValue} />
       <GradientButton
         className="mt-4"
         onClick={() => {
-          showToast({ type: 'success', message: 'Experience updated' })
+          updateNurseProfile({ experience: value })
+          showToast({ type: 'success', message: t('profile.experienceUpdated') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
+      </GradientButton>
+    </ProfileEditShell>
+  )
+}
+
+export function UpdateLicenseScreen() {
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [value, setValue] = useState(nurse?.license || '')
+  return (
+    <ProfileEditShell title={t('profile.license')}>
+      <OutlinedInput label={t('nurseSignup.licenseLabel')} value={value} onChange={setValue} />
+      <GradientButton
+        className="mt-4"
+        onClick={() => {
+          updateNurseProfile({ license: value })
+          showToast({ type: 'success', message: t('profile.licenseUpdated') })
+          navigate(-1)
+        }}
+      >
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )
@@ -530,18 +584,22 @@ export function UpdateExperienceScreen() {
 
 export function UpdateReferenceScreen() {
   const navigate = useNavigate()
-  const [value, setValue] = useState('Dr. Al-Rashid — +9665…')
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [value, setValue] = useState(nurse?.reference || '')
   return (
-    <ProfileEditShell title="References">
-      <OutlinedInput label="Reference" value={value} onChange={setValue} />
+    <ProfileEditShell title={t('profile.references')}>
+      <OutlinedInput label={t('nurseSignup.referenceLabel')} value={value} onChange={setValue} />
       <GradientButton
         className="mt-4"
         onClick={() => {
-          showToast({ type: 'success', message: 'Reference updated' })
+          updateNurseProfile({ reference: value })
+          showToast({ type: 'success', message: t('profile.referenceUpdated') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )
@@ -549,12 +607,15 @@ export function UpdateReferenceScreen() {
 
 export function UpdatePreferenceScreen() {
   const navigate = useNavigate()
-  const [langs, setLangs] = useState<string[]>(['Arabic', 'English'])
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [langs, setLangs] = useState<string[]>(nurse?.languages?.length ? nurse.languages : [])
   const toggle = (l: string) =>
     setLangs((prev) => (prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l]))
   return (
-    <ProfileEditShell title="Preferences">
-      <p className="mb-2 text-sm font-semibold">Languages</p>
+    <ProfileEditShell title={t('profile.preferences')}>
+      <p className="mb-2 text-sm font-semibold">{t('profile.languages')}</p>
       <div className="mb-4 flex flex-wrap gap-2">
         {LANGUAGES.map((l) => (
           <Chip key={l} active={langs.includes(l)} onClick={() => toggle(l)}>
@@ -564,11 +625,12 @@ export function UpdatePreferenceScreen() {
       </div>
       <GradientButton
         onClick={() => {
-          showToast({ type: 'success', message: 'Preferences saved' })
+          updateNurseProfile({ languages: langs })
+          showToast({ type: 'success', message: t('profile.preferencesSaved') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )
@@ -576,13 +638,14 @@ export function UpdatePreferenceScreen() {
 
 export function UpdateServicesScreen() {
   const navigate = useNavigate()
-  const nurse = useAppStore((s) => s.nurses[0])
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
   const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
   const [selected, setSelected] = useState<string[]>(nurse?.services || [])
   const toggle = (s: string) =>
     setSelected((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
   return (
-    <ProfileEditShell title="Services">
+    <ProfileEditShell title={t('profile.services')}>
       <div className="mb-4 flex flex-wrap gap-2">
         {SERVICES.map((s) => (
           <Chip key={s} active={selected.includes(s)} onClick={() => toggle(s)}>
@@ -593,11 +656,11 @@ export function UpdateServicesScreen() {
       <GradientButton
         onClick={() => {
           updateNurseProfile({ services: selected })
-          showToast({ type: 'success', message: 'Services updated' })
+          showToast({ type: 'success', message: t('profile.servicesUpdated') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )
@@ -605,11 +668,14 @@ export function UpdateServicesScreen() {
 
 export function UpdateShiftScreen() {
   const navigate = useNavigate()
-  const [shifts, setShifts] = useState<string[]>(['Morning', 'Afternoon'])
+  const { t } = useTranslation()
+  const nurse = useAppStore((s) => s.getCurrentNurse())
+  const updateNurseProfile = useAppStore((s) => s.updateNurseProfile)
+  const [shifts, setShifts] = useState<string[]>(nurse?.availability || [])
   const toggle = (s: string) =>
     setShifts((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
   return (
-    <ProfileEditShell title="Shifts">
+    <ProfileEditShell title={t('profile.shifts')}>
       <div className="mb-4 flex flex-wrap gap-2">
         {SHIFTS.map((s) => (
           <Chip key={s} active={shifts.includes(s)} onClick={() => toggle(s)}>
@@ -619,11 +685,12 @@ export function UpdateShiftScreen() {
       </div>
       <GradientButton
         onClick={() => {
-          showToast({ type: 'success', message: 'Shifts updated' })
+          updateNurseProfile({ availability: shifts })
+          showToast({ type: 'success', message: t('profile.shiftsUpdated') })
           navigate(-1)
         }}
       >
-        Save
+        {t('common.save')}
       </GradientButton>
     </ProfileEditShell>
   )

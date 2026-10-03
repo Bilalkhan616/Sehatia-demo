@@ -28,7 +28,10 @@
     "english": "English",
     "arabic": "العربية",
     "langPillAr": "عربي",
-    "langPillEn": "EN"
+    "langPillEn": "EN",
+    "later": "لاحقًا",
+    "createAccount": "إنشاء حساب",
+    "listJoin": "، "
   },
   "tabs": {
     "calendar": "التقويم",
@@ -59,7 +62,7 @@
     "noConversationsHint": "راسل ممرضة من صفحة الموعد.",
     "noMessages": "لا توجد رسائل",
     "selectPatientFirst": "اختر مريضًا أولًا",
-    "selectPatientHint": "افتح ملف مريض للحجز.",
+    "selectPatientHint": "اختر ملف مريض للحجز.",
     "noBookingDraft": "لا يوجد مسودة حجز",
     "threadNotFound": "المحادثة غير موجودة"
   },
@@ -138,7 +141,7 @@
   },
   "patientSelect": {
     "title": "اختر المريض",
-    "subtitle": "أدخل الرمز لفتح ملف الرعاية",
+    "subtitle": "اختر ملف الرعاية الذي تريد فتحه",
     "addNew": "إضافة مريض جديد",
     "enterPin": "أدخل رمز المريض",
     "demoPin": "رمز العرض هو 1234",
@@ -223,7 +226,39 @@
     "available": "الرصيد المتاح",
     "transactions": "المعاملات",
     "bookingLabel": "حجز — {{name}}",
-    "perHour": "/ساعة"
+    "perHour": "/ساعة",
+    "rescheduleTitle": "إعادة جدولة الزيارة",
+    "reviewRequest": "مراجعة الطلب",
+    "sendRequest": "إرسال الطلب",
+    "payAfterAccept": "يُطلب الدفع فقط بعد قبول الممرضة لهذه الزيارة.",
+    "requestSentTitle": "تم إرسال الطلب",
+    "requestSentLead": "ستراجع الممرضة طلبك. سيُطلب منك الدفع فقط بعد قبولها.",
+    "viewRequests": "عرض الطلبات",
+    "confirmedTitle": "تم تأكيد الحجز",
+    "confirmedLead": "تم استلام الدفع. زيارتك الآن في التقويم.",
+    "paymentReceived": "تم استلام الدفع — تم تأكيد الحجز",
+    "payAfterApprovalOnly": "الدفع متاح فقط بعد موافقة الممرضة",
+    "cardPaySuccess": "تم الدفع بنجاح — تم تأكيد الحجز",
+    "couldNotSend": "تعذر إرسال الطلب",
+    "waitingApproval": "تم إرسال الطلب — بانتظار موافقة الممرضة",
+    "noNurses": "لا توجد ممرضات متاحات",
+    "noNursesHint": "جرّب خدمة أخرى، أو عد لاحقًا عندما تكون ممرضة متصلة.",
+    "startBookingFirst": "ابدأ حجزًا أولًا",
+    "nothingToPay": "لا يوجد ما يُدفع بعد",
+    "nothingToPayHint": "يفتح الدفع بعد قبول الممرضة لطلبك.",
+    "payToConfirm": "ادفع للتأكيد",
+    "waitingNurse": "بانتظار الممرضة",
+    "paymentDue": "دفعة مستحقة",
+    "paymentDueBanner": "قبلت الممرضة {{count}} زيارة. ادفع للتأكيد.",
+    "paymentNeeded": "يلزم الدفع",
+    "acceptedService": "قبلت {{name}} خدمة {{service}}",
+    "payToConfirmVisit": "ادفع لتأكيد هذه الزيارة.",
+    "requestsTab": "الطلبات",
+    "noOpenRequests": "لا توجد طلبات مفتوحة",
+    "noOpenRequestsHint": "تظهر الحجوزات الجديدة هنا حتى يتم تأكيدها.",
+    "rescheduleWith": "إعادة الجدولة مع {{name}}",
+    "pickNewDate": "اختر تاريخًا جديدًا مع نفس الممرضة",
+    "hoursShort": "{{count}}س"
   },
   "appointments": {
     "title": "المواعيد",
@@ -306,7 +341,13 @@
     "referenceUpdated": "تم تحديث المرجع",
     "preferencesSaved": "تم حفظ التفضيلات",
     "servicesUpdated": "تم تحديث الخدمات",
-    "shiftsUpdated": "تم تحديث الورديات"
+    "shiftsUpdated": "تم تحديث الورديات",
+    "license": "الترخيص",
+    "licenseUpdated": "تم تحديث الترخيص",
+    "finishHire": "أكمل ملف التوظيف",
+    "finishHireLead": "أضف {{fields}} لتصبح متاحًا للحجوزات.",
+    "availableBookings": "متاح للحجوزات",
+    "currentlyOffline": "غير متصل حاليًا"
   },
   "settings": {
     "title": "الإعدادات",
@@ -344,6 +385,25 @@
     "recentPayouts": "عمليات السحب الأخيرة",
     "withdrawn": "تم السحب"
   },
+  "hire": {
+    "title": "أكمل ملفك للحصول على التوظيف",
+    "lead": "يمكن للمرضى حجز الممرضات ذوات الملف المكتمل فقط. أضف التعليم والخبرة والخدمات والورديات في ملفك.",
+    "updateProfile": "تحديث الملف",
+    "completeFirst": "أكمل ملف التوظيف أولًا",
+    "nowOffline": "أنت الآن غير متصل",
+    "nowAvailable": "أنت الآن متاح",
+    "setup": "إعداد",
+    "online": "متصل",
+    "offline": "غير متصل",
+    "setOffline": "تحويل إلى غير متصل",
+    "setAvailable": "تحويل إلى متاح",
+    "field": {
+      "education": "التعليم",
+      "experience": "الخبرة",
+      "services": "الخدمات",
+      "shifts": "الورديات"
+    }
+  },
   "requests": {
     "title": "الطلبات",
     "empty": "لا توجد طلبات قيد الانتظار",
@@ -352,7 +412,8 @@
     "decline": "رفض",
     "accepted": "تم قبول الحجز",
     "declined": "تم رفض الحجز",
-    "messagePatient": "مراسلة المريض"
+    "messagePatient": "مراسلة المريض",
+    "acceptedPay": "تم القبول — سيُطلب من المريض الدفع"
   },
   "nurseSignup": {
     "title": "تسجيل ممرضة",
@@ -384,7 +445,12 @@
     "servicesOffer": "الخدمات التي تقدمها",
     "pickService": "اختر خدمة واحدة على الأقل",
     "finish": "إنهاء التسجيل",
-    "created": "تم إنشاء حساب الممرضة — يرجى تسجيل الدخول"
+    "created": "تم إنشاء حساب الممرضة — يرجى تسجيل الدخول",
+    "hireHint": "بعد تسجيل الدخول، أكمل ملفك المهني للحصول على التوظيف.",
+    "fillAll": "املأ جميع الحقول لإنشاء حسابك",
+    "createdHire": "تم إنشاء الحساب — سجّل الدخول لإكمال ملف التوظيف",
+    "createAccount": "إنشاء حساب",
+    "dob": "تاريخ الميلاد"
   },
   "patientSignup": {
     "title": "تسجيل مريض",
@@ -397,7 +463,10 @@
     "holder": "صاحب الحساب",
     "addPatient": "إضافة مريض",
     "patientName": "اسم المريض",
-    "patientPin": "الرمز (4 أرقام)"
+    "patientPin": "الرمز (4 أرقام)",
+    "fillAll": "املأ جميع الحقول لإنشاء حسابك",
+    "createAccount": "إنشاء حساب",
+    "dob": "تاريخ الميلاد"
   },
   "wallet": {
     "topUp": "شحن المحفظة",

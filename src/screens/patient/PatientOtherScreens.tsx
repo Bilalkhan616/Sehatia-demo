@@ -23,13 +23,22 @@ export function PatientAppointmentsScreen() {
   const { t } = useTranslation()
   const selectedPatientId = useAppStore((s) => s.selectedPatientId)
   const appointments = useAppStore((s) => s.appointments)
-  const [tab, setTab] = useState<'ongoing' | 'upcoming' | 'completed' | 'cancelled'>('ongoing')
+  const bookings = useAppStore((s) => s.bookings)
+  const [tab, setTab] = useState<'requests' | 'ongoing' | 'upcoming' | 'completed' | 'cancelled'>(
+    'requests',
+  )
   const list = appointments.filter(
     (a) => a.status === tab && (!selectedPatientId || a.patientId === selectedPatientId),
+  )
+  const requestList = bookings.filter(
+    (b) =>
+      (!selectedPatientId || b.patientId === selectedPatientId) &&
+      (b.status === 'pending' || b.status === 'awaiting_payment' || b.status === 'declined'),
   )
   const ongoingCount = appointments.filter(
     (a) => a.status === 'ongoing' && (!selectedPatientId || a.patientId === selectedPatientId),
   ).length
+  const payCount = requestList.filter((b) => b.status === 'awaiting_payment').length
 
   return (
     <Screen>
@@ -37,6 +46,20 @@ export function PatientAppointmentsScreen() {
         <h1 className="text-2xl font-extrabold text-ink">{t('appointments.title')}</h1>
         <LanguageToggle compact />
       </div>
+      {payCount > 0 && tab !== 'requests' && (
+        <button
+          type="button"
+          onClick={() => setTab('requests')}
+          className="mb-3 w-full rounded-2xl border border-seafoam/30 bg-mist px-4 py-3 text-left"
+        >
+          <p className="text-xs font-bold uppercase tracking-wide text-seafoam-deep">
+            {t('booking.paymentDue')}
+          </p>
+          <p className="text-sm font-extrabold text-ink">
+            {t('booking.paymentDueBanner', { count: payCount })}
+          </p>
+        </button>
+      )}
       {ongoingCount > 0 && tab !== 'ongoing' && (
         <button
           type="button"
@@ -48,23 +71,52 @@ export function PatientAppointmentsScreen() {
         </button>
       )}
       <div className="mb-4 flex flex-wrap gap-2">
-        {(['ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((tabKey) => (
+        {(['requests', 'ongoing', 'upcoming', 'completed', 'cancelled'] as const).map((tabKey) => (
           <Chip
             key={tabKey}
             active={tab === tabKey}
             onClick={() => setTab(tabKey)}
             tone={tabKey === 'ongoing' ? 'coral' : 'seafoam'}
           >
-            {t(`status.${tabKey}`)}
+            {tabKey === 'requests' ? t('booking.requestsTab') : t(`status.${tabKey}`)}
           </Chip>
         ))}
       </div>
-      {list.length === 0 ? (
+      {tab === 'requests' ? (
+        requestList.length === 0 ? (
+          <EmptyState title={t('booking.noOpenRequests')} message={t('booking.noOpenRequestsHint')} />
+        ) : (
+          <div className="space-y-3">
+            {requestList.map((b) => (
+              <Card key={b.id}>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-seafoam">
+                  {b.status === 'awaiting_payment'
+                    ? t('booking.payToConfirm')
+                    : b.status === 'declined'
+                      ? t('requests.declined')
+                      : t('booking.waitingNurse')}
+                </p>
+                <p className="font-extrabold text-ink">{b.service}</p>
+                <p className="text-xs text-muted">
+                  {b.nurseName} · {b.date} {b.time}
+                </p>
+                <p className="mt-1 text-sm font-bold text-seafoam">{formatCurrency(b.amount)}</p>
+                {b.status === 'awaiting_payment' && (
+                  <GradientButton
+                    className="mt-3"
+                    onClick={() => navigate(`/patient/booking/payment/${b.id}`)}
+                  >
+                    {t('booking.payNow')}
+                  </GradientButton>
+                )}
+              </Card>
+            ))}
+          </div>
+        )
+      ) : list.length === 0 ? (
         <EmptyState
           title={t('appointments.noTab', { tab: t(`status.${tab}`) })}
-          message={
-            tab === 'ongoing' ? t('empty.noOngoingPatient') : t('empty.defaultMessage')
-          }
+          message={tab === 'ongoing' ? t('empty.noOngoingPatient') : t('empty.defaultMessage')}
         />
       ) : (
         <div className="space-y-3">
@@ -91,8 +143,10 @@ export function PatientAppointmentsScreen() {
 export function PatientAppointmentInfoScreen() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const appointment = useAppStore((s) => s.appointments.find((a) => a.id === id))
   const ensureChatWith = useAppStore((s) => s.ensureChatWith)
+  const startReschedule = useAppStore((s) => s.startReschedule)
 
   if (!appointment) {
     return (
@@ -176,6 +230,17 @@ export function PatientAppointmentInfoScreen() {
             onClick={() => navigate(`/patient/appointments/${id}/cancel`)}
           >
             Cancel
+          </GradientButton>
+        )}
+        {appointment.status === 'completed' && (
+          <GradientButton
+            onClick={() => {
+              if (!startReschedule(appointment.id)) return
+              showToast({ type: 'info', message: t('booking.pickNewDate') })
+              navigate('/patient/booking')
+            }}
+          >
+            {t('booking.rescheduleWith', { name: appointment.nurseName.split(' ')[0] })}
           </GradientButton>
         )}
         {appointment.status === 'completed' && !appointment.rating && (
